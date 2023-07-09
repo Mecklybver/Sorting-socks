@@ -1,0 +1,17 @@
+*{
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh
+
+}
+canvas{
+    display:flex
+    overflow: visible
+}
