@@ -67,4 +67,4 @@ function easeInOutBack(x){
 }
 
 
-export { vLerp, add, subtract, scale, normalize, distance , average, magnitude, easeInOutBack };
+export { lerp, vLerp, add, subtract, scale, normalize, distance , average, magnitude, easeInOutBack };

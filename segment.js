@@ -7,7 +7,7 @@ class Segment{
         this.len =distance(pA.loc,pB.loc)
     }
 
-    #update(){
+    update(){
         const dir = subtract(this.pA.loc, this.pB.loc)
         const curLen = magnitude(dir)
         const diff = curLen - this.len;
@@ -26,7 +26,6 @@ class Segment{
 
     }
     draw(ctx){
-        this.#update(); 
         ctx.beginPath();
         ctx.moveTo(this.pA.loc.x,this.pA.loc.y);
         ctx.lineTo(this.pB.loc.x,this.pB.loc.y);

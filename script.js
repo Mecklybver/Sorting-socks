@@ -1,4 +1,7 @@
 import Sock from "./socks.js";
+import Physics from "./physics.js";
+import { lerp } from "./math.js";
+
 
 const canvas = document.createElement("canvas");
 
@@ -14,15 +17,35 @@ const margin = 30;
 const availableWidth = canvas.width - margin * 2;
 const spacing = availableWidth / n;
 
-for (let i = 0; i < n; i++) {
-  array[i] = Math.random();
+const colors =['#D35400', '#2471A3', '#F39C12',
+'#B2BABB', '#138D75', '#52BE80',
+'#BB8FCE', '#555555', '#bcf60c',
+'#fabebe', '#9a6324', '#54A1D3',
+'#aaffc3', '#808000', '#333333']
+
+const sockColors = []
+
+for (let i = 0; i < n/2; i++) {
+  const t=i/(n/2-1)
+  sockColors.push(colors[i])
+  sockColors.push(colors[i])
+  array.push(lerp(0.2,1,t))
+  array.push(lerp(0.2,1,t))
 }
+
+
+for(let i=0;i<array.length;i++){
+  const j=Math.floor(Math.random()*array.length);
+  [array[i],array[j]]=[array[j],array[i]];
+  [sockColors[i],sockColors[j]]=[sockColors[j],sockColors[i]];
+}
+
 
 for (let i = 0; i < array.length; i++) {
   const x = i * spacing + spacing / 2 + margin;
   const y = StringHeight;
   const height = canvas.height * 0.4 * array[i];
-  socks[i] = new Sock(x, y, height);
+  socks[i] = new Sock(x, y, height, sockColors[i]);
 }
 
 const moves= bubbleSort(array);
@@ -39,7 +62,11 @@ function animate() {
   let changed= false
   for (let i = 0; i < socks.length; i++) {
     changed=socks[i].draw(ctx)||changed;
+
+    Physics.update(socks[i].particles, socks[i].segments )
   }
+
+  
 
   if(!changed && moves.length>0){
     const nextMove = moves.shift();
