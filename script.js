@@ -11,7 +11,7 @@ canvas.height = window.innerHeight / 2;
 
 const n = 20;
 const array = [];
-const StringHeight = canvas.height * 0.3;
+const stringHeight = canvas.height * 0.4;
 const socks = [];
 const margin = 30;
 const availableWidth = canvas.width - margin * 2;
@@ -37,6 +37,8 @@ const colors = [
 
 const sockColors = [];
 
+const tweenLength = 35;
+
 for (let i = 0; i < n / 2; i++) {
   const t = i / (n / 2 - 1);
   sockColors.push(colors[i]);
@@ -52,23 +54,35 @@ for (let i = 0; i < array.length; i++) {
 }
 
 for (let i = 0; i < array.length; i++) {
+  const u = Math.sin((i / (array.length - 1)) * Math.PI);
   const x = i * spacing + spacing / 2 + margin;
-  const y = StringHeight;
+  const y = stringHeight + u * margin * 0.7;
   const height = canvas.height * 0.4 * array[i];
   socks[i] = new Sock(x, y, height, sockColors[i]);
 }
 
-const bird = new Bird(socks[0].loc, socks[1].loc, canvas.height * 0.1);
+const bird = new Bird(socks[0].loc, socks[1].loc, canvas.height * 0.26);
 
 const moves = bubbleSort(array);
+moves.shift();
 
 const ctx = canvas.getContext("2d");
+let time = 0;
 
 function animate() {
+  time += 0.03;
+  time %= 6;
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   ctx.beginPath();
-  ctx.moveTo(0, StringHeight);
-  ctx.lineTo(canvas.width, StringHeight);
+  ctx.moveTo(0, stringHeight - margin*0.3);
+  ctx.bezierCurveTo(
+    canvas.width *0.3,stringHeight + margin,
+    canvas.width * 0.7 ,stringHeight + margin *0.9,
+    canvas.width,stringHeight - margin * 0.3
+  );
   ctx.stroke();
 
   let changed = false;
@@ -78,19 +92,19 @@ function animate() {
     Physics.update(socks[i].particles, socks[i].segments);
   }
 
-  changed = bird.draw(ctx) || changed;
+  changed = bird.draw(ctx, time, tweenLength) || changed;
 
   if (!changed && moves.length > 0) {
     const nextMove = moves.shift();
     const [i, j] = nextMove.indeces;
     if (nextMove.type === "swap") {
-      socks[i].moveTo(socks[j].loc);
-      socks[j].moveTo(socks[i].loc);
-      bird.moveTo(socks[j].loc, socks[i].loc);
+      socks[i].moveTo(socks[j].loc, tweenLength);
+      socks[j].moveTo(socks[i].loc, tweenLength);
+      bird.moveTo(socks[j].loc, socks[i].loc, false, tweenLength);
 
       [socks[i], socks[j]] = [socks[j], socks[i]];
     } else if (nextMove.type === "comparison") {
-      bird.moveTo(socks[i].loc, socks[j].loc);
+      bird.moveTo(socks[i].loc, socks[j].loc, true, tweenLength);
     }
   }
 
@@ -102,10 +116,10 @@ animate();
 function bubbleSort(array) {
   const moves = [];
   let n = array.length;
-  let left=1;
+  let left = 1;
   do {
     var swapped = false;
-    if ((n-left) % 2 === 1) {
+    if ((n - left) % 2 === 1) {
       for (let i = left; i < n; i++) {
         moves.push({
           indeces: [i - 1, i],
@@ -122,7 +136,7 @@ function bubbleSort(array) {
       }
       n--;
     } else {
-      for (let i = n- 1; i >= left; i--) {
+      for (let i = n - 1; i >= left; i--) {
         moves.push({
           indeces: [i - 1, i],
           type: "comparison",
@@ -137,10 +151,7 @@ function bubbleSort(array) {
         }
       }
       left++;
-
     }
-    
-
   } while (swapped);
   return moves;
 }
